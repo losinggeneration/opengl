@@ -1,19 +1,17 @@
 package gl
 
-// #cgo darwin LDFLAGS: -framework OpenGL -lGLEW -lGL
-// #cgo windows LDFLAGS: -lglew32 -lopengl32
-// #cgo linux LDFLAGS: -lGLEW -lGL
+// #cgo darwin LDFLAGS: -framework OpenGL
+// #cgo windows LDFLAGS: -lopengl32
+// #cgo linux LDFLAGS: -lGL
 //
 // #include <stdlib.h>
 //
 // #ifdef __APPLE__
-// # include <OpenGL/glew.h>
+// # include <OpenGL/gl.h>
 // #else
-// # include <GL/glew.h>
+// # include <GL/gl.h>
 // #endif
 //
-// #undef GLEW_GET_FUN
-// #define GLEW_GET_FUN(x) (*x)
 import "C"
 import "unsafe"
 import "reflect"
@@ -113,10 +111,6 @@ func (object Object) IsShader() bool { return C.glIsShader(C.GLuint(object)) != 
 
 func (object Object) IsTexture() bool { return C.glIsTexture(C.GLuint(object)) != 0 }
 
-func (object Object) IsTransformFeedback() bool { return C.glIsTransformFeedback(C.GLuint(object)) != 0 }
-
-func (object Object) IsVertexArray() bool { return C.glIsVertexArray(C.GLuint(object)) != 0 }
-
 // Shader
 
 type Shader Object
@@ -193,24 +187,6 @@ func (program Program) GetAttachedShaders() []Object {
 
 func (program Program) DetachShader(shader Shader) {
 	C.glDetachShader(C.GLuint(program), C.GLuint(shader))
-}
-
-func (program Program) TransformFeedbackVaryings (names []string, buffer_mode GLenum) {
-	if len(names) == 0 {
-		C.glTransformFeedbackVaryings(C.GLuint(program), 0, (**C.GLchar)(nil), C.GLenum(buffer_mode))
-	} else {
-		gl_names := make([]*C.GLchar, len(names))
-
-		for i := range(names) {
-			gl_names[i] = glString(names[i])
-		}
-
-		C.glTransformFeedbackVaryings(C.GLuint(program), C.GLsizei(len(gl_names)), &gl_names[0], C.GLenum(buffer_mode))
-
-		for _, s := range(gl_names) {
-			freeString(s)
-		}
-	}
 }
 
 func (program Program) Link() { C.glLinkProgram(C.GLuint(program)) }
@@ -318,35 +294,28 @@ func (texture Texture) Unbind(target GLenum) {
 //void glTexImage1D (GLenum target, int level, int internalformat, int width, int border, GLenum format, GLenum type, const GLvoid *pixels)
 func TexImage1D(target GLenum, level int, internalformat int, width int, border int, format GLenum, pixels interface{}) {
 	t, p := GetGLenumType(pixels)
-	C.glTexImage1D(C.GLenum(target), C.GLint(level), C.GLint(internalformat), C.GLsizei(width), C.GLint(border), C.GLenum(format), C.GLenum(t), p)
+	C.glTexImage1D(C.GLenum(target), C.GLint(level), C.GLenum(internalformat), C.GLsizei(width), C.GLint(border), C.GLenum(format), C.GLenum(t), p)
 }
 
 //void glTexImage2D (GLenum target, int level, int internalformat, int width, int height, int border, GLenum format, GLenum type, const GLvoid *pixels)
-func TexImage2D(target GLenum, level int, internalformat int, width int, height int, border int, format, typ GLenum, pixels interface{}) {
-	if pixels == nil {
-		C.glTexImage2D(C.GLenum(target), C.GLint(level), C.GLint(internalformat),
-			C.GLsizei(width), C.GLsizei(height), C.GLint(border), C.GLenum(format), C.GLenum(typ), nil)
-		return
-	}
-
-	_, p := GetGLenumType(pixels)
-	C.glTexImage2D(C.GLenum(target), C.GLint(level), C.GLint(internalformat),
-		C.GLsizei(width), C.GLsizei(height), C.GLint(border), C.GLenum(format), C.GLenum(typ), p)
+func TexImage2D(target GLenum, level int, internalformat int, width int, height int, border int, format GLenum, pixels interface{}) {
+	t, p := GetGLenumType(pixels)
+	C.glTexImage2D(C.GLenum(target), C.GLint(level), C.GLenum(internalformat), C.GLsizei(width), C.GLsizei(height), C.GLint(border), C.GLenum(format), C.GLenum(t), p)
 }
 
 //void glPixelMapfv (GLenum map, int mapsize, const float *values)
 func PixelMapfv(map_ GLenum, mapsize int, values *float32) {
-	C.glPixelMapfv(C.GLenum(map_), C.GLsizei(mapsize), (*C.GLfloat)(values))
+	C.glPixelMapfv(C.GLenum(map_), C.GLint(mapsize), (*C.GLfloat)(values))
 }
 
 //void glPixelMapuiv (GLenum map, int mapsize, const uint *values)
 func PixelMapuiv(map_ GLenum, mapsize int, values *uint32) {
-	C.glPixelMapuiv(C.GLenum(map_), C.GLsizei(mapsize), (*C.GLuint)(values))
+	C.glPixelMapuiv(C.GLenum(map_), C.GLint(mapsize), (*C.GLuint)(values))
 }
 
 //void glPixelMapusv (GLenum map, int mapsize, const uint16 *values)
 func PixelMapusv(map_ GLenum, mapsize int, values *uint16) {
-	C.glPixelMapusv(C.GLenum(map_), C.GLsizei(mapsize), (*C.GLushort)(values))
+	C.glPixelMapusv(C.GLenum(map_), C.GLint(mapsize), (*C.GLushort)(values))
 }
 
 //void glTexSubImage1D (GLenum target, int level, int xoffset, int width, GLenum format, GLenum type, const GLvoid *pixels)
@@ -591,54 +560,6 @@ func GetBufferParameteriv(target GLenum, pname GLenum, params []int32) {
 
 // Transform Feedback Objects
 
-type TransformFeedback Object
-
-// Create a single transform feedback object
-func GenTransformFeedback() TransformFeedback {
-	var t C.GLuint
-	C.glGenTransformFeedbacks(1, &t)
-	return TransformFeedback(t)
-}
-
-// Fill slice with new transform feedbacks
-func GenTransformFeedbacks(feedbacks []TransformFeedback) {
-	C.glGenBuffers(C.GLsizei(len(feedbacks)), (*C.GLuint)(&feedbacks[0]))
-}
-
-// Delete a transform feedback object
-func (feedback TransformFeedback) Delete() {
-	C.glDeleteTransformFeedbacks(1, (*C.GLuint)(&feedback))
-}
-
-// Draw the results of the last Begin/End cycle from this transform feedback using primitive type 'mode'
-func (feedback TransformFeedback) Draw(mode GLenum) {
-	C.glDrawTransformFeedback(C.GLenum(mode), C.GLuint(feedback))
-}
-
-// Delete all transform feedbacks in a slice
-func DeleteTransformFeedbacks(feedbacks []TransformFeedback) {
-	C.glDeleteTransformFeedbacks(C.GLsizei(len(feedbacks)), (*C.GLuint)(&feedbacks[0]))
-}
-
-// Bind this transform feedback as target
-func (feedback TransformFeedback) Bind(target GLenum) {
-	C.glBindTransformFeedback(C.GLenum(target), C.GLuint(feedback))
-}
-
-// Begin transform feedback with primitive type 'mode'
-func BeginTransformFeedback(mode GLenum) {
-	C.glBeginTransformFeedback(C.GLenum(mode))
-}
-
-// Pause transform feedback
-func PauseTransformFeedback() {
-	C.glPauseTransformFeedback()
-}
-
-// End transform feedback
-func EndTransformFeedback() {
-	C.glEndTransformFeedback()
-}
 
 // AttribLocation
 
@@ -694,30 +615,6 @@ func (indx AttribLocation) DisableArray() {
 }
 
 
-// Vertex Arrays
-type VertexArray Object
-
-func GenVertexArray () VertexArray {
-	var a C.GLuint
-	C.glGenVertexArrays(1, &a)
-	return VertexArray(a)
-}
-
-func GenVertexArrays (arrays []VertexArray) {
-	C.glGenVertexArrays(C.GLsizei(len(arrays)), (*C.GLuint)(&arrays[0]))
-}
-
-func (array VertexArray) Delete () {
-	C.glDeleteVertexArrays(1, (*C.GLuint)(&array))
-}
-
-func DeleteVertexArrays (arrays []VertexArray) {
-	C.glDeleteVertexArrays(C.GLsizei(len(arrays)), (*C.GLuint)(&arrays[0]))
-}
-
-func (array VertexArray) Bind () {
-	C.glBindVertexArray(C.GLuint(array))
-}
 
 // UniformLocation
 //TODO
@@ -2468,5 +2365,5 @@ func GenFramebuffers(bufs []Framebuffer) {
 //}
 
 func Init() GLenum {
-	return GLenum(C.glewInit())
+  return 0
 }
