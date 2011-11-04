@@ -68,17 +68,6 @@ func Unproject(wx, wy, wz float64, model, proj []float64, view []int32) (objx, o
 	return float64(ox), float64(oy), float64(oz)
 }
 
-// Project screen coordinates to object coordinates.
-func Unproject4(wx, wy, wz, clipw float64, model, proj []float64, view []int32, near, far float64) (objx, objy, objz, objw float64) {
-	var ox, oy, oz, ow C.GLdouble
-	C.gluUnProject4(
-		C.GLdouble(wx), C.GLdouble(wy), C.GLdouble(wz), C.GLdouble(clipw),
-		(*C.GLdouble)(&model[0]), (*C.GLdouble)(&proj[0]), (*C.GLint)(&view[0]),
-		C.GLdouble(near), C.GLdouble(far), &ox, &oy, &oz, &ow,
-	)
-	return float64(ox), float64(oy), float64(oz), float64(ow)
-}
-
 func PickMatrix(x, y, delx, dely float64, viewport []int32) {
 	C.gluPickMatrix(C.GLdouble(x), C.GLdouble(y), C.GLdouble(delx),
 		C.GLdouble(dely), (*C.GLint)(&viewport[0]))
