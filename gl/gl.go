@@ -49,10 +49,6 @@ func goBool(v C.GLboolean) bool {
 	return v != 0
 }
 
-func glString(s string) *C.GLchar { return (*C.GLchar)(C.CString(s)) }
-
-func freeString(ptr *C.GLchar) { C.free(unsafe.Pointer(ptr)) }
-
 func GetGLenumType(v interface{}) (t GLenum, p unsafe.Pointer) {
 	rv := reflect.ValueOf(v)
 	var et reflect.Value
@@ -343,9 +339,6 @@ uniformMatrix4fv
 */
 
 // Main
-
-func BlendEquation(mode GLenum) { C.glBlendEquation(C.GLenum(mode)) }
-
 
 //void glAlphaFunc (GLenum func, GLclampf ref)
 func AlphaFunc(func_ GLenum, ref GLclampf) {
