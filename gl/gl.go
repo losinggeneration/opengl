@@ -103,156 +103,7 @@ func GetGLenumType(v interface{}) (t GLenum, p unsafe.Pointer) {
 
 type Object C.GLuint
 
-func (object Object) IsBuffer() bool { return C.glIsBuffer(C.GLuint(object)) != 0 }
-
-func (object Object) IsProgram() bool { return C.glIsProgram(C.GLuint(object)) != 0 }
-
-func (object Object) IsShader() bool { return C.glIsShader(C.GLuint(object)) != 0 }
-
 func (object Object) IsTexture() bool { return C.glIsTexture(C.GLuint(object)) != 0 }
-
-// Shader
-
-type Shader Object
-
-func CreateShader(type_ GLenum) Shader { return Shader(C.glCreateShader(C.GLenum(type_))) }
-
-func (shader Shader) Delete() { C.glDeleteShader(C.GLuint(shader)) }
-
-func (shader Shader) GetInfoLog() string {
-	var len C.GLint
-	C.glGetShaderiv(C.GLuint(shader), C.GLenum(INFO_LOG_LENGTH), &len)
-
-	log := C.malloc(C.size_t(len + 1))
-	C.glGetShaderInfoLog(C.GLuint(shader), C.GLsizei(len), nil, (*C.GLchar)(log))
-
-	defer C.free(log)
-
-	return C.GoString((*C.char)(log))
-}
-
-func (shader Shader) GetSource() string {
-	var len C.GLint
-	C.glGetShaderiv(C.GLuint(shader), C.GLenum(SHADER_SOURCE_LENGTH), &len)
-
-	log := C.malloc(C.size_t(len + 1))
-	C.glGetShaderSource(C.GLuint(shader), C.GLsizei(len), nil, (*C.GLchar)(log))
-
-	defer C.free(log)
-
-	return C.GoString((*C.char)(log))
-}
-
-func (shader Shader) Source(source string) {
-
-	csource := glString(source)
-	defer freeString(csource)
-
-	var one C.GLint = C.GLint(len(source))
-
-	C.glShaderSource(C.GLuint(shader), 1, &csource, &one)
-}
-
-
-func (shader Shader) Compile() { C.glCompileShader(C.GLuint(shader)) }
-
-func (shader Shader) Get(param GLenum) int {
-	var rv C.GLint
-
-	C.glGetShaderiv(C.GLuint(shader), C.GLenum(param), &rv)
-	return int(rv)
-}
-
-// Program
-
-type Program Object
-
-func CreateProgram() Program { return Program(C.glCreateProgram()) }
-
-func (program Program) Delete() { C.glDeleteProgram(C.GLuint(program)) }
-
-func (program Program) AttachShader(shader Shader) {
-	C.glAttachShader(C.GLuint(program), C.GLuint(shader))
-}
-
-
-func (program Program) GetAttachedShaders() []Object {
-	var len C.GLint
-	C.glGetProgramiv(C.GLuint(program), C.GLenum(ACTIVE_UNIFORM_MAX_LENGTH), &len)
-
-	objects := make([]Object, len)
-	C.glGetAttachedShaders(C.GLuint(program), C.GLsizei(len), nil, *((**C.GLuint)(unsafe.Pointer(&objects))))
-	return objects
-}
-
-func (program Program) DetachShader(shader Shader) {
-	C.glDetachShader(C.GLuint(program), C.GLuint(shader))
-}
-
-func (program Program) Link() { C.glLinkProgram(C.GLuint(program)) }
-
-func (program Program) Validate() { C.glValidateProgram(C.GLuint(program)) }
-
-func (program Program) Use() { C.glUseProgram(C.GLuint(program)) }
-
-
-func (program Program) GetInfoLog() string {
-
-	var len C.GLint
-	C.glGetProgramiv(C.GLuint(program), C.GLenum(INFO_LOG_LENGTH), &len)
-
-	log := C.malloc(C.size_t(len + 1))
-	C.glGetProgramInfoLog(C.GLuint(program), C.GLsizei(len), nil, (*C.GLchar)(log))
-
-	defer C.free(log)
-
-	return C.GoString((*C.char)(log))
-
-}
-
-func (program Program) Get(param GLenum) int {
-	var rv C.GLint
-
-	C.glGetProgramiv(C.GLuint(program), C.GLenum(param), &rv)
-	return int(rv)
-}
-
-
-func (program Program) GetUniformiv(location UniformLocation, values []int) {
-	// no range check
-	C.glGetUniformiv(C.GLuint(program), C.GLint(location), (*C.GLint)(unsafe.Pointer(&(values[0]))))
-}
-
-func (program Program) GetUniformfv(location UniformLocation, values []float32) {
-	// no range check
-	C.glGetUniformfv(C.GLuint(program), C.GLint(location), (*C.GLfloat)(unsafe.Pointer(&(values[0]))))
-}
-
-func (program Program) GetUniformLocation(name string) UniformLocation {
-
-	cname := glString(name)
-	defer freeString(cname)
-
-	return UniformLocation(C.glGetUniformLocation(C.GLuint(program), cname))
-}
-
-func (program Program) GetAttribLocation(name string) AttribLocation {
-
-	cname := glString(name)
-	defer freeString(cname)
-
-	return AttribLocation(C.glGetAttribLocation(C.GLuint(program), cname))
-}
-
-
-func (program Program) BindAttribLocation(index AttribLocation, name string) {
-
-	cname := glString(name)
-	defer freeString(cname)
-
-	C.glBindAttribLocation(C.GLuint(program), C.GLuint(index), cname)
-
-}
 
 // Texture
 
@@ -705,8 +556,6 @@ uniformMatrix4fv
 */
 
 // Main
-
-func ActiveTexture(texture GLenum) { C.glActiveTexture(C.GLenum(texture)) }
 
 func BlendColor(red GLclampf, green GLclampf, blue GLclampf, alpha GLclampf) {
 	C.glBlendColor(C.GLclampf(red), C.GLclampf(green), C.GLclampf(blue), C.GLclampf(alpha))
@@ -2321,48 +2170,6 @@ func (fb Framebuffer) Delete() {
 func DeleteFramebuffers(bufs []Framebuffer) {
 	C.glDeleteFramebuffers(C.GLsizei(len(bufs)), (*C.GLuint)(&bufs[0]))
 }
-
-// GLsync glFramebufferRenderbuffer(GLenum target, GLenum attachment, GLenum renderbuffertarget, GLuint renderbuffer);
-func (rb Renderbuffer) FramebufferRenderbuffer(target, attachment, renderbuffertarget GLenum) /* GLsync */ {
-	// TODO: sync stuff.  return (GLsync)(C.glFramebufferRenderbuffer (C.GLenum(target), C.GLenum(attachment), C.GLenum(renderbuffertarget), C.GLuint(rb)))
-	C.glFramebufferRenderbuffer(C.GLenum(target), C.GLenum(attachment), C.GLenum(renderbuffertarget), C.GLuint(rb))
-}
-
-// void glFramebufferTexture1D(GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level);
-func FramebufferTexture1D(target, attachment, textarget GLenum, texture Texture, level int) {
-	C.glFramebufferTexture1D(C.GLenum(target), C.GLenum(attachment), C.GLenum(textarget), C.GLuint(texture), C.GLint(level))
-}
-
-// void glFramebufferTexture2D(GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level);
-func FramebufferTexture2D(target, attachment, textarget GLenum, texture Texture, level int) {
-	C.glFramebufferTexture2D(C.GLenum(target), C.GLenum(attachment), C.GLenum(textarget), C.GLuint(texture), C.GLint(level))
-}
-
-// void glFramebufferTexture3D(GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level, GLint layer);
-func FramebufferTexture3D(target, attachment, textarget GLenum, texture Texture, level int, layer int) {
-	C.glFramebufferTexture3D(C.GLenum(target), C.GLenum(attachment), C.GLenum(textarget), C.GLuint(texture), C.GLint(level), C.GLint(layer))
-}
-
-// void glFramebufferTextureLayer(GLenum target, GLenum attachment, GLuint texture, GLint level, GLint layer);
-func FramebufferTextureLayer(target, attachment GLenum, texture Texture, level, layer int) {
-	C.glFramebufferTextureLayer(C.GLenum(target), C.GLenum(attachment), C.GLuint(texture), C.GLint(level), C.GLint(layer))
-}
-
-// void glGenFramebuffers(GLsizei n, GLuint* ids);
-func GenFramebuffer() Framebuffer {
-	var b C.GLuint
-	C.glGenRenderbuffers(1, &b)
-	return Framebuffer(b)
-}
-
-func GenFramebuffers(bufs []Framebuffer) {
-	C.glGenFramebuffers(C.GLsizei(len(bufs)), (*C.GLuint)(&bufs[0]))
-}
-
-// void glGetFramebufferAttachmentParameter(GLenum target, GLenum attachment, GLenum pname, GLint* params);
-//func GetFramebufferAttachmentParameter (target, attachment, pname GLenum, params []int) {
-//  C.glGetFramebufferAttachmentParameter (C.GLenum(target), C.GLenum(attachment), C.GLenum(pname), (*C.GLint)(&params[0]))
-//}
 
 func Init() GLenum {
   return 0
