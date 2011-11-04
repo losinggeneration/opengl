@@ -329,86 +329,6 @@ func GetTexParameteriv(target GLenum, pname GLenum, params []int32) {
 	C.glGetTexParameteriv(C.GLenum(target), C.GLenum(pname), (*C.GLint)(&params[0]))
 }
 
-// Buffer Objects
-
-type Buffer Object
-
-// Create single buffer object
-func GenBuffer() Buffer {
-	var b C.GLuint
-	C.glGenBuffers(1, &b)
-	return Buffer(b)
-}
-
-// Fill slice with new buffers
-func GenBuffers(buffers []Buffer) {
-	C.glGenBuffers(C.GLsizei(len(buffers)), (*C.GLuint)(&buffers[0]))
-}
-
-// Delete buffer object
-func (buffer Buffer) Delete() {
-	b := C.GLuint(buffer)
-	C.glDeleteBuffers(1, &b)
-}
-
-// Delete all textures in slice
-func DeleteBuffers(buffers []Buffer) {
-	C.glDeleteBuffers(C.GLsizei(len(buffers)), (*C.GLuint)(&buffers[0]))
-}
-
-// Bind this buffer as target
-func (buffer Buffer) Bind(target GLenum) {
-	C.glBindBuffer(C.GLenum(target), C.GLuint(buffer))
-}
-
-// Bind this buffer as index of target
-func (buffer Buffer) BindBufferBase(target GLenum, index uint) {
-	C.glBindBufferBase(C.GLenum(target), C.GLuint(index), C.GLuint(buffer))
-}
-
-// Bind this buffer range as index of target
-func (buffer Buffer) BindBufferRange(target GLenum, index uint, offset int, size uint) {
-	C.glBindBufferRange(C.GLenum(target), C.GLuint(index), C.GLuint(buffer), C.GLintptr(offset), C.GLsizeiptr(size))
-}
-
-// Creates and initializes a buffer object's data store
-func BufferData(target GLenum, size int, data interface{}, usage GLenum) {
-	_, p := GetGLenumType(data)
-	C.glBufferData(C.GLenum(target), C.GLsizeiptr(size), p, C.GLenum(usage))
-}
-
-//  Update a subset of a buffer object's data store
-func BufferSubData(target GLenum, offset int, size int, data interface{}) {
-	_, p := GetGLenumType(data)
-	C.glBufferSubData(C.GLenum(target), C.GLintptr(offset), C.GLsizeiptr(size), p)
-}
-
-// Returns a subset of a buffer object's data store
-func GetBufferSubData(target GLenum, offset int, size int, data interface{}) {
-	_, p := GetGLenumType(data)
-	C.glGetBufferSubData(C.GLenum(target), C.GLintptr(offset), C.GLsizeiptr(size), p)
-}
-
-//  Map a buffer object's data store
-func MapBuffer(target GLenum, access GLenum) {
-	C.glMapBuffer(C.GLenum(target), C.GLenum(access))
-}
-
-//  Unmap a buffer object's data store
-func UnmapBuffer(target GLenum) bool {
-	return goBool(C.glUnmapBuffer(C.GLenum(target)))
-}
-
-// Return buffer pointer
-func glGetBufferPointerv(target GLenum, pname GLenum, params []unsafe.Pointer) {
-	C.glGetBufferPointerv(C.GLenum(target), C.GLenum(pname), &params[0])
-}
-
-// Return parameters of a buffer object
-func GetBufferParameteriv(target GLenum, pname GLenum, params []int32) {
-	C.glGetBufferParameteriv(C.GLenum(target), C.GLenum(pname), (*C.GLint)(&params[0]))
-}
-
 // Transform Feedback Objects
 
 
@@ -732,11 +652,6 @@ func DrawArrays(mode GLenum, first int, count int) {
 	C.glDrawArrays(C.GLenum(mode), C.GLint(first), C.GLsizei(count))
 }
 
-//void glDrawBuffer (GLenum mode)
-func DrawBuffer(mode GLenum) {
-	C.glDrawBuffer(C.GLenum(mode))
-}
-
 //void glDrawElements (GLenum mode, int count, GLenum type, const GLvoid *indices)
 func DrawElements(mode GLenum, count int, indices interface{}) {
 	t, p := GetGLenumType(indices)
@@ -844,11 +759,6 @@ func EvalPoint1(i int) {
 //void glEvalPoint2 (int i, int j)
 func EvalPoint2(i int, j int) {
 	C.glEvalPoint2(C.GLint(i), C.GLint(j))
-}
-
-//void glFeedbackBuffer (GLsizei size, GLenum type, float32 *buffer)
-func FeedbackBuffer(size int, type_ GLenum, buffer *float32) {
-	C.glFeedbackBuffer(C.GLsizei(size), C.GLenum(type_), (*C.GLfloat)(buffer))
 }
 
 //void glFinish (void)
@@ -1511,11 +1421,6 @@ func RasterPos4sv(v []int16) {
 	C.glRasterPos4sv((*C.GLshort)(&v[0]))
 }
 
-//void glReadBuffer (GLenum mode)
-func ReadBuffer(mode GLenum) {
-	C.glReadBuffer(C.GLenum(mode))
-}
-
 //void glReadPixels (int x, int y, int width, int height, GLenum format, GLenum type, GLvoid *pixels)
 func ReadPixels(x int, y int, width int, height int, format GLenum, pixels interface{}) {
 	t, p := GetGLenumType(pixels)
@@ -1590,11 +1495,6 @@ func Scalef(x float32, y float32, z float32) {
 //void glScissor (int x, int y, int width, int height)
 func Scissor(x int, y int, width int, height int) {
 	C.glScissor(C.GLint(x), C.GLint(y), C.GLsizei(width), C.GLsizei(height))
-}
-
-//void glSelectBuffer (GLsizei size, uint *buffer)
-func SelectBuffer(buffer []uint32) {
-	C.glSelectBuffer(C.GLsizei(len(buffer)), (*C.GLuint)(&buffer[0]))
 }
 
 //void glShadeModel (GLenum mode)
@@ -1924,87 +1824,6 @@ func Viewport(x int, y int, width int, height int) {
 	C.glViewport(C.GLint(x), C.GLint(y), C.GLsizei(width), C.GLsizei(height))
 }
 
-// Renderbuffer Objects
-
-type Renderbuffer Object
-
-// void glGenRenderbuffers(GLsizei n, GLuint *renderbuffers)
-func GenRenderbuffer() Renderbuffer {
-	var b C.GLuint
-	C.glGenRenderbuffers(1, &b)
-	return Renderbuffer(b)
-}
-
-// Fill slice with new renderbuffers
-func GenRenderbuffers(bufs []Renderbuffer) {
-	C.glGenRenderbuffers(C.GLsizei(len(bufs)), (*C.GLuint)(&bufs[0]))
-}
-
-// void glBindRenderbuffer(GLenum target, GLuint renderbuffer);
-func (rb Renderbuffer) Bind() {
-	C.glBindRenderbuffer(C.GLenum(RENDERBUFFER), C.GLuint(rb))
-}
-
-// Unbind this texture
-func (rb Renderbuffer) Unbind() {
-	C.glBindRenderbuffer(C.GLenum(RENDERBUFFER), 0)
-}
-
-// void glDeleteRenderbuffers(GLsizei n, GLuint* renderbuffers);
-func (rb Renderbuffer) Delete() {
-	C.glDeleteRenderbuffers(1, (*C.GLuint)(&rb))
-}
-
-func DeleteRenderbuffers(bufs []Renderbuffer) {
-	C.glDeleteRenderbuffers(C.GLsizei(len(bufs)), (*C.GLuint)(&bufs[0]))
-}
-
-// void glGetRenderbufferParameteriv(GLenum target, GLenum pname, GLint* params);
-//func GetRenderbufferParameteriv (target, pname GLenum, params []int) {
-//  C.glGetRenderbufferParameteriv (C.GLenum(target), C.GLenum(pname), (*C.GLint)(&params[0]))
-//}
-
-// void glRenderbufferStorage(GLenum target, GLenum internalformat, GLsizei width, GLsizei height);
-func RenderbufferStorage(target, internalformat GLenum, width int, height int) {
-	C.glRenderbufferStorage(C.GLenum(target), C.GLenum(internalformat), C.GLsizei(width), C.GLsizei(height))
-}
-
-// void glRenderbufferStorageMultisample(GLenum target, GLsizei samples, GLenum internalformat, GLsizei width, GLsizei height);
-func RenderbufferStorageMultisample(target GLenum, samples int, internalformat GLenum, width, height int) {
-	C.glRenderbufferStorageMultisample(C.GLenum(target), C.GLsizei(samples), C.GLenum(internalformat), C.GLsizei(width), C.GLsizei(height))
-}
-
-// Framebuffer Objects
-// TODO: implement GLsync stuff
-type Framebuffer Object
-
-// void glBindFramebuffer(GLenum target, GLuint framebuffer);
-func (fb Framebuffer) Bind() {
-	C.glBindFramebuffer(C.GLenum(FRAMEBUFFER), C.GLuint(fb))
-}
-
-func (fb Framebuffer) Unbind() {
-	C.glBindFramebuffer(C.GLenum(FRAMEBUFFER), 0)
-}
-
-// void glBlitFramebuffer(GLint srcX0, GLint srcY0, GLint srcX1, GLint srcY1, GLint dstX0, GLint dstY0, GLint dstX1, GLint dstY1, GLbitfield mask, GLenum filter);
-func BlitFramebuffer(srcX0, srcY0, srcX1, srcY1, dstX0, dstY0, dstX1, dstY1 int, mask GLbitfield, filter GLenum) {
-	C.glBlitFramebuffer(C.GLint(srcX0), C.GLint(srcY0), C.GLint(srcX1), C.GLint(srcY1), C.GLint(dstX0), C.GLint(dstY0), C.GLint(dstX1), C.GLint(dstY1), C.GLbitfield(mask), C.GLenum(filter))
-}
-
-// GLenum glCheckFramebufferStatus(GLenum target);
-func CheckFramebufferStatus(target GLenum) GLenum {
-	return (GLenum)(C.glCheckFramebufferStatus(C.GLenum(target)))
-}
-
-// void glDeleteFramebuffers(GLsizei n, GLuint* framebuffers);
-func (fb Framebuffer) Delete() {
-	C.glDeleteFramebuffers(1, (*C.GLuint)(&fb))
-}
-
-func DeleteFramebuffers(bufs []Framebuffer) {
-	C.glDeleteFramebuffers(C.GLsizei(len(bufs)), (*C.GLuint)(&bufs[0]))
-}
 
 func Init() GLenum {
   return 0
