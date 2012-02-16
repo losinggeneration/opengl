@@ -10,7 +10,7 @@ package glu
 // # include <GL/glu.h>
 // #endif
 import "C"
-import "gl"
+import "github.com/runningwild/opengl/gl"
 
 func Build2DMipmaps(target gl.GLenum, internalFormat int, width, height int, format gl.GLenum, data interface{}) int {
 	t, p := gl.GetGLenumType(data)

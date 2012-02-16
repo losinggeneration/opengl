@@ -1402,6 +1402,11 @@ func RasterPos4sv(v []int16) {
 	C.glRasterPos4sv((*C.GLshort)(&v[0]))
 }
 
+//void glReadBuffer (GLenum mode)
+func ReadBuffer(mode GLenum) {
+	C.glReadBuffer(C.GLenum(mode))
+}
+
 //void glReadPixels (int x, int y, int width, int height, GLenum format, GLenum type, GLvoid *pixels)
 func ReadPixels(x int, y int, width int, height int, format GLenum, pixels interface{}) {
 	t, p := GetGLenumType(pixels)
