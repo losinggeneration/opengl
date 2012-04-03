@@ -153,6 +153,25 @@ func PixelMapusv(map_ GLenum, mapsize int, values *uint16) {
 	C.glPixelMapusv(C.GLenum(map_), C.GLint(mapsize), (*C.GLushort)(values))
 }
 
+//void glTexImage1D (GLenum target, int level, int internalformat, int width, int border, GLenum format, GLenum type, const GLvoid *pixels)
+func TexImage1D(target GLenum, level int, internalformat int, width int, border int, format GLenum, pixels interface{}) {
+	t, p := GetGLenumType(pixels)
+	C.glTexImage1D(C.GLenum(target), C.GLint(level), C.GLenum(internalformat), C.GLsizei(width), C.GLint(border), C.GLenum(format), C.GLenum(t), p)
+}
+
+//void glTexImage2D (GLenum target, int level, int internalformat, int width, int height, int border, GLenum format, GLenum type, const GLvoid *pixels)
+func TexImage2D(target GLenum, level int, internalformat int, width int, height int, border int, format, typ GLenum, pixels interface{}) {
+	if pixels == nil {
+		C.glTexImage2D(C.GLenum(target), C.GLint(level), C.GLenum(internalformat),
+			C.GLsizei(width), C.GLsizei(height), C.GLint(border), C.GLenum(format), C.GLenum(typ), nil)
+		return
+	}
+
+	_, p := GetGLenumType(pixels)
+	C.glTexImage2D(C.GLenum(target), C.GLint(level), C.GLenum(internalformat),
+		C.GLsizei(width), C.GLsizei(height), C.GLint(border), C.GLenum(format), C.GLenum(typ), p)
+}
+
 //void glTexSubImage1D (GLenum target, int level, int xoffset, int width, GLenum format, GLenum type, const GLvoid *pixels)
 func TexSubImage1D(target GLenum, level int, xoffset int, width int, format GLenum, pixels interface{}) {
 	t, p := GetGLenumType(pixels)
