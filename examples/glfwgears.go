@@ -18,7 +18,7 @@ package main
 
 */
 
-import "github.com/jteeuwen/glfw"
+import "github.com/MobRulesGames/glfw"
 import "gl"
 import "math"
 import "os"
