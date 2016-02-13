@@ -12,7 +12,7 @@ package main
 
 /*
 
-	this is go version based on SDL version 
+	this is go version based on SDL version
 
 	this version uses glfw: https://github.com/jteeuwen/glfw
 
@@ -208,7 +208,6 @@ func draw() {
 	}
 }
 
-
 func idle() {
 	angle += 2.0
 }
@@ -289,7 +288,7 @@ func main() {
 	}
 
 	if gl.Init() != 0 {
-		panic("gl error")	
+		panic("gl error")
 	}
 
 	defer glfw.CloseWindow()
@@ -299,12 +298,12 @@ func main() {
 	glfw.SetWindowSizeCallback(reshape)
 
 	init_()
-	reshape(300,300)
+	reshape(300, 300)
 	done = false
 	for !done {
-		idle();
+		idle()
 		draw()
 		done = glfw.Key(glfw.KeyEsc) != 0 || glfw.WindowParam(glfw.Opened) == 0
 	}
-	
+
 }

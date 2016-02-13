@@ -1,6 +1,6 @@
 /*
 this example uses glfw instead of Go-SDL. To try it type:
-	
+
 	gomake
 	sudo gomake install
 	gomake main

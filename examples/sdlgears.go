@@ -206,7 +206,6 @@ func draw() {
 	}
 }
 
-
 func idle() {
 	angle += 2.0
 }
@@ -284,7 +283,7 @@ func main() {
 	}
 
 	if gl.Init() != 0 {
-		panic("gl error")	
+		panic("gl error")
 	}
 
 	sdl.WM_SetCaption("Gears", "gears")

@@ -7,9 +7,9 @@ package main
 */
 
 import (
-   "sdl"
-   "gl"
-   "math"
+	"gl"
+	"math"
+	"sdl"
 )
 
 type Point struct {
@@ -79,7 +79,7 @@ func main() {
 	}
 
 	if gl.Init() != 0 {
-		panic("gl error")	
+		panic("gl error")
 	}
 
 	pen := Pen{}

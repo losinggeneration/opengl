@@ -1,10 +1,10 @@
 package main
 
 import (
-	"sdl"
-	"gl"
 	"flag"
+	"gl"
 	"runtime"
+	"sdl"
 )
 
 var iterations *int = flag.Int("i", 1024, "number of iterations")
@@ -410,7 +410,7 @@ func main() {
 	}
 
 	if gl.Init() != 0 {
-		panic("gl error")	
+		panic("gl error")
 	}
 
 	sdl.WM_SetCaption("Gomandel", "Gomandel")
@@ -422,7 +422,6 @@ func main() {
 	gl.Ortho(0, 512, 512, 0, -1, 1)
 
 	gl.ClearColor(0, 0, 0, 0)
-
 
 	//-----------------------------------------------------------------------------
 	var dndDragging bool = false
@@ -446,7 +445,7 @@ func main() {
 				running = false
 			case *sdl.MouseButtonEvent:
 				mbe := e.(*sdl.MouseButtonEvent)
-				if(mbe.Type == sdl.MOUSEBUTTONDOWN) {
+				if mbe.Type == sdl.MOUSEBUTTONDOWN {
 					dndDragging = true
 					sdl.GetMouseState(&dndStart.X, &dndStart.Y)
 					dndEnd = dndStart

@@ -334,8 +334,6 @@ func GetTexParameteriv(target GLenum, pname GLenum, params []int32) {
 
 // Transform Feedback Objects
 
-
-
 /*
 uniformMatrix2fv
 uniformMatrix2fv
@@ -1829,7 +1827,6 @@ func Viewport(x int, y int, width int, height int) {
 	C.glViewport(C.GLint(x), C.GLint(y), C.GLsizei(width), C.GLsizei(height))
 }
 
-
 func Init() GLenum {
-  return 0
+	return 0
 }
